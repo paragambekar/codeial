@@ -1,3 +1,4 @@
+const { authenticate } = require('passport/lib');
 const User = require('../models/users');
 
 module.exports.profile = function(request,response){
@@ -31,7 +32,7 @@ module.exports.signIn = function(request,response){
         return response.redirect('back');
     }
 
-    User.findOne({ name : request.body.name}, function(error,user){
+    User.findOne({ email: request.body.email}, function(error,user){
 
         if(error){console.log('Error in finding User'); return}
 
@@ -50,5 +51,5 @@ module.exports.signIn = function(request,response){
  }
 
  module.exports.createSession = function(request,response){
-     
+    
  }
