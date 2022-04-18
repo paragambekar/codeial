@@ -3,11 +3,17 @@ const User = require('../models/users');
 
 module.exports.profile = function(request,response){
 
-    response.end('User Profile');
+    return response.render('user_profile',{
+        title : 'User Profile'
+    });
 
 }
 
 module.exports.signUp = function(request,response){
+
+    if(request.isAuthenticated()){
+        return response.redirect('/users/profile');
+    }
 
    return response.render('users_sign_up',{
        title : 'Codieal | Sign Up',
@@ -16,6 +22,10 @@ module.exports.signUp = function(request,response){
 }
 
 module.exports.signIn = function(request,response){
+
+    if(request.isAuthenticated()){
+       return  response.redirect('/users/profile');
+    }
 
     return response.render('users_sign_in',{
         title : 'Codieal | Sign In',
@@ -51,5 +61,11 @@ module.exports.signIn = function(request,response){
  }
 
  module.exports.createSession = function(request,response){
-    
+     return response.redirect('/');
  }
+
+ module.exports.destroySession = function(request, response){
+    request.logout();
+
+    return response.redirect('/');
+}

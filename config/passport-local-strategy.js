@@ -1,7 +1,9 @@
 const { ListCollectionsCursor } = require('mongoose/node_modules/mongodb');
 const passport = require('passport');
 
-const LocalStrategy = require('passpport-local').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+
+const User = require('../models/users');
 
 
 // authentication using passport
@@ -50,6 +52,26 @@ passport.deserializeUser(function(id, done){
         return done(null, user);
     });
 });
+
+
+passport.checkAuthentication = function(request,response,next){
+    
+    // if user is signed in then pass on the request to the next function (controller action )
+    if(request.isAuthenticated()){
+        return next();
+    }
+    // if user not found 
+    return response.redirect('/users/sign-up');
+
+}
+
+passport.setAuthenticatedUser = function(request,response,next){
+    if(request.isAuthenticated()){
+        // request.user contains the current signed in user from the session cookie and we are just sending this to the locals for views
+        response.locals.user = request.user;
+    }
+    next();
+}
 
 
 
