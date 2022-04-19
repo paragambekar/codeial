@@ -1,6 +1,7 @@
 
+const { MongoUnexpectedServerResponseError } = require('mongodb');
 const Post = require('../models/post');
-
+const User = require('../models/user');
 module.exports.home = function(req, res){
 
     Post.find({})
@@ -12,9 +13,18 @@ module.exports.home = function(req, res){
         }
     })
     .exec(function(err, posts){
-        return res.render('home', {
-            title: "Codeial | Home",
-            posts:  posts
+
+        User.find({}, function(error,users){
+
+            return res.render('home', {
+                title: "Codeial | Home",
+                posts:  posts,
+                all_users : users,
+            });
+        
+
         });
+
+        
     })
 }

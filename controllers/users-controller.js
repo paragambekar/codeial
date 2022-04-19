@@ -3,9 +3,32 @@ const User = require('../models/user');
 
 module.exports.profile = function(request,response){
 
-    return response.render('user_profile',{
-        title : 'User Profile'
+    User.findById(request.params.id, function(error,user){
+        return response.render('user_profile',{
+            title : 'User Profile',
+            profile_user : user,
+        });
+
     });
+
+    
+
+}
+
+
+module.exports.update = function(request,response){
+
+    if(request.user.id == request.params.id){
+
+        User.findByIdAndUpdate(request.params.id, request.body, function(error,user){
+            
+           return response.redirect('back'); 
+            
+        });
+
+    }else{
+        return response.status(401).send('Unathourized');
+    }
 
 }
 
