@@ -10,9 +10,6 @@ module.exports.profile = function(request,response){
         });
 
     });
-
-    
-
 }
 
 
@@ -21,15 +18,12 @@ module.exports.update = function(request,response){
     if(request.user.id == request.params.id){
 
         User.findByIdAndUpdate(request.params.id, request.body, function(error,user){
-            
-           return response.redirect('back'); 
-            
+            return response.redirect('back'); 
         });
 
     }else{
-        return response.status(401).send('Unathourized');
+        return response.status(401).send('Unauthorized');
     }
-
 }
 
 module.exports.signUp = function(request,response){

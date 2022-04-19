@@ -2,78 +2,53 @@ const { redirect } = require('express/lib/response');
 const Comment = require('../models/comment');
 const Post = require('../models/post');
 
-module.exports.create = function(request, response){
-    Post.findById(request.body.post, function(error, post){
-
-        if(error){
-            console.log("Error in finding post");
-        }
-
+module.exports.create = async function(request, response){
+    
+    try{
+        let post = await Post.findById(request.body.post);
         if (post){
-            Comment.create({
+            let comment = await Comment.create({
                 content: request.body.content,
                 post: request.body.post,
                 user: request.user._id
-            }, function(error, comment){
+            });
+           
                 // handle error 
 
-                post.comments.push(comment);
-                post.save();
+            post.comments.push(comment);
+            post.save();
 
-                response.redirect('/');
-            });
+            response.redirect('/');
         }
+    }catch(error){
+        console.log('Error in adding comment',error);
+        return;
+    }
 
-    });
+        
 }
 
-module.exports.destroy = function(req, res){
-    Comment.findById(req.params.id, function(err, comment){
-        if (comment.user == req.user.id){
+module.exports.destroy = async function(request, response){
 
-            let postId = comment.post;
+        try{
+            let comment = await  Comment.findById(request.params.id);
+            if (comment.user == request.user.id){
 
-            comment.remove();
+                let postId = comment.post;
 
-            Post.findByIdAndUpdate(postId, { $pull: {comments: req.params.id}}, function(err, post){
-                return res.redirect('back');
-            })
-        }else{
-            return res.redirect('back');
+                comment.remove();
+
+                let post =  Post.findByIdAndUpdate(postId, { $pull: {comments: request.params.id}});
+                    return response.redirect('back');
+            }else{
+                return response.redirect('back');
+            }
+        }catch(error){
+            console.log('Error in destroying comments');
         }
-    });
+     
+        
 } 
-
-// module.exports.destroy = function(request,response){
-
-//     Comment.findById(request.params.id, function(error,comment){
-
-//         if(error){
-//             console.log("didnt find comment");
-//         }
-
-//         if(comment.user == request.user.id){
-              
-//             let postId = comment.post;
-
-//             comment.remove();
-
-//             Post.findByIdAndUpdate(postId, {$pull: {comments : request.params.id}}, function(error,post){
-
-//                 if(error){
-//                     console.log("unable to update");
-//                 }
-
-//                 return redirect('back');
-
-//             });
-//         }else{
-//             return redirect('back');
-//         }
-
-//     });
-
-// }
 
 // this only delete  the comment by does not update the post that this comment was removed 
 // module.exports.destroy = function(request,response){
