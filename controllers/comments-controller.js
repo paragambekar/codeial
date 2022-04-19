@@ -1,8 +1,9 @@
+const { redirect } = require('express/lib/response');
 const Comment = require('../models/comment');
 const Post = require('../models/post');
 
 module.exports.create = function(request, response){
-    Post.findById(req.body.post, function(error, post){
+    Post.findById(request.body.post, function(error, post){
 
         if(error){
             console.log("Error in finding post");
@@ -10,11 +11,11 @@ module.exports.create = function(request, response){
 
         if (post){
             Comment.create({
-                content: req.body.content,
-                post: req.body.post,
-                user: req.user._id
+                content: request.body.content,
+                post: request.body.post,
+                user: request.user._id
             }, function(error, comment){
-                // handle error
+                // handle error 
 
                 post.comments.push(comment);
                 post.save();
@@ -26,53 +27,73 @@ module.exports.create = function(request, response){
     });
 }
 
-// const Comment = require('../models/comment');
-// const Post = require('../models/post');
+module.exports.destroy = function(req, res){
+    Comment.findById(req.params.id, function(err, comment){
+        if (comment.user == req.user.id){
 
-// module.exports.create = function(request,response){
-//     // Here we need to comment over a post
-//     // why? request.body.post 
-//     // Because we gave the name attribute of our comment form post 
-//     console.log("Inside controller");
-//     Post.findById(request.body.post, function(error,post){
-//         // console.log(typeof(Post.findById(request.body.post)));
-//         console.log(request.body.post);
+            let postId = comment.post;
+
+            comment.remove();
+
+            Post.findByIdAndUpdate(postId, { $pull: {comments: req.params.id}}, function(err, post){
+                return res.redirect('back');
+            })
+        }else{
+            return res.redirect('back');
+        }
+    });
+} 
+
+// module.exports.destroy = function(request,response){
+
+//     Comment.findById(request.params.id, function(error,comment){
+
 //         if(error){
-//             console.log("Error in finding post");
+//             console.log("didnt find comment");
 //         }
 
-//         // if post is found then only we can add comment
-//         if(post){
-//             console.log("Post found");
-//             Comment.create({
-//                 content : request.body.content,
-//                 post : request.body.post,
-//                 user : '12',
+//         if(comment.user == request.user.id){
+              
+//             let postId = comment.post;
 
-//             }, function(error, comment){
+//             comment.remove();
+
+//             Post.findByIdAndUpdate(postId, {$pull: {comments : request.params.id}}, function(error,post){
 
 //                 if(error){
-//                     console.log("Error in pushing comment");
+//                     console.log("unable to update");
 //                 }
-//                 console.log(comment.user);
-//                 post.comments.push(comment);
-//                 post.save();
 
-//                 response.redirect('/'); 
-//             })
+//                 return redirect('back');
 
+//             });
+//         }else{
+//             return redirect('back');
 //         }
 
-//     }); 
+//     });
 
-//     // Post.findById(request.body.post, function(error, post){
+// }
 
-//     //     if(error){
-//     //         console.log("Error in finding userss");
-//     //     }
-//     //     if(post){
-//     //         console.log("user found");
-//     //     }
-//     // });
+// this only delete  the comment by does not update the post that this comment was removed 
+// module.exports.destroy = function(request,response){
+
+//     Post.findById(request.params.id, function(error,post){
+
+//         if(post.user == request.user.id){
+
+//             Comment.deleteOne({post : request.params.id}, function(error){
+
+//                 return response.redirect('back');
+
+//             })
+
+//         }else{
+//             return response.redirect('back');
+//         }
+
+
+//     });
+
 // }
 
