@@ -17,12 +17,12 @@ module.exports.create = async function(request, response){
 
             post.comments.push(comment);
             post.save();
-
+            request.flash('success', "Comment Added");
             response.redirect('/');
         }
     }catch(error){
-        console.log('Error in adding comment',error);
-        return;
+        request.flash('error', error);
+        response.redirect('/');
     }
 
         
@@ -39,12 +39,15 @@ module.exports.destroy = async function(request, response){
                 comment.remove();
 
                 let post =  Post.findByIdAndUpdate(postId, { $pull: {comments: request.params.id}});
+                request.flash('success', "Comment Deleted Successfully");
                     return response.redirect('back');
             }else{
+                request.flash('success', "You cant deleted this comment");
                 return response.redirect('back');
             }
         }catch(error){
-            console.log('Error in destroying comments');
+            request.flash('error', error);
+            return response.redirect('back');
         }
      
         

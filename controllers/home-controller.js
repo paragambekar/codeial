@@ -9,13 +9,14 @@ module.exports.home = async function(request, response){
     try{
 
         let posts = await Post.find({})
-    .populate('user')
-    .populate({
-        path : 'comments',
-        populate : {
-            path : 'user'
-        }
-    });
+        .sort('-createdAt')
+        .populate('user')
+        .populate({
+            path : 'comments',
+            populate : {
+                path : 'user'
+            }
+        });
 
 
     let users = await User.find({});
